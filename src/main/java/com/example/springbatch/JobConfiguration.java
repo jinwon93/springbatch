@@ -15,24 +15,23 @@ import org.springframework.context.annotation.Configuration;
 
 @RequiredArgsConstructor
 @Configuration
-public class HellowJobConfiguration {
+public class JobConfiguration {
 
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 
 
-    @Bean
-    public Job hellowJob(){
-        return jobBuilderFactory.get("hellow")
-                .start(hellowStep1())
-                .next(hellowStep2())
-                .build();
-    }
+     @Bean
+     public  Job job(){
+         return jobBuilderFactory.get("job")
+                 .start(step1())
+                 .next(step2())
+                 .build();
+     }
 
-
     @Bean
-    public Step hellowStep1(){
+    public Step step1(){
         return stepBuilderFactory.get("hellowStep1")
                 .tasklet(new Tasklet() {
                     @Override
@@ -45,7 +44,7 @@ public class HellowJobConfiguration {
 
 
     @Bean
-    public Step hellowStep2(){
+    public Step step2(){
         return stepBuilderFactory.get("hellowStep2")
                 .tasklet(new Tasklet() {
                     @Override

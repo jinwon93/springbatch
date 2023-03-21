@@ -1,4 +1,4 @@
-package com.example.springbatch;
+package com.example.springbatch.job;
 
 
 import lombok.RequiredArgsConstructor;
@@ -15,20 +15,19 @@ import org.springframework.context.annotation.Configuration;
 
 @RequiredArgsConstructor
 @Configuration
-public class JobConfiguration {
-
+public class JobParameterConfiguration {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 
 
-     @Bean
-     public  Job job(){
-         return jobBuilderFactory.get("job")
-                 .start(step1())
-                 .next(step2())
-                 .build();
-     }
+    @Bean
+    public Job job(){
+        return jobBuilderFactory.get("job")
+                .start(step1())
+                .next(step2())
+                .build();
+    }
 
     @Bean
     public Step step1(){

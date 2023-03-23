@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 
 @RequiredArgsConstructor
 @Configuration
-public class JobConfiguration {
+public class JobExecutionConfiguration {
 
 
     private final JobBuilderFactory jobBuilderFactory;
@@ -45,11 +45,14 @@ public class JobConfiguration {
 
     @Bean
     public Step step2(){
+         // jobInstance B ==> JobExecution status가 failed면 JobExecution에 저장
         return stepBuilderFactory.get("hellowStep2")
                 .tasklet(new Tasklet() {
                     @Override
                     public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
-                        return RepeatStatus.FINISHED;
+
+                        throw  new RuntimeException("step2 hjas faild");
+//                        return RepeatStatus.FINISHED;
                     }
                 })
                 .build();

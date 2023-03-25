@@ -33,12 +33,8 @@ public class JobExecutionConfiguration {
     @Bean
     public Step step1(){
         return stepBuilderFactory.get("hellowStep1")
-                .tasklet(new Tasklet() {
-                    @Override
-                    public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
-                        return RepeatStatus.FINISHED;
-                    }
-                })
+                .tasklet(
+                    new CustomTasklet())
                 .build();
     }
 

@@ -1,9 +1,6 @@
 package com.example.springbatch.job;
 
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,5 +25,12 @@ public class JobRespositoryListener implements JobExecutionListener {
                 .addString("requestDate", "20230329").toJobParameters();
 
         JobExecution lastJobExecution = jobRepository.getLastJobExecution(jobName, requestDate);
+        if (lastJobExecution  != null ) {
+            for (StepExecution execution : lastJobExecution.getStepExecutions() ) {
+                BatchStatus batchStatus = execution.getStatus();
+                ExitStatus exitStatus = execution.getExitStatus();
+                String stepName =  execution.getStepName();
+            }
+        }
     }
 }

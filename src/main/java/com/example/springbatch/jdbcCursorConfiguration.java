@@ -7,7 +7,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
@@ -43,7 +42,7 @@ public class jdbcCursorConfiguration {
                 .build();
     }
 
-    private ItemReader<String> customerItemReader() {
+    private JdbcCursorItemReader<Object> customerItemReader() {
 
         return new JdbcCursorItemReaderBuilder<>()
                 .name("jdbcCursorItemReader")

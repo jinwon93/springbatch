@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
-public class SimpleJobConfiguration {
+public class ValidatorConfiguration {
 
 
     private final JobLauncherApplicationRunner jobLauncherApplicationRunner;
@@ -27,11 +27,11 @@ public class SimpleJobConfiguration {
 
 
     @Bean
-    public Job job(){
+    public Job batchJob(){
         return jobBuilderFactory.get("job")
                 .start(step1())
                 .next(step2())
-                .next(step3())
+                .validator(new CustomJobParametersValidator())
                 .build();
     }
 
@@ -51,14 +51,6 @@ public class SimpleJobConfiguration {
     @Bean
     public Step step2(){
         return stepBuilderFactory.get("hellowStep2")
-                .tasklet(((stepContribution, chunkContext) ->  {
-                    return RepeatStatus.FINISHED;
-                }))
-                .build();
-    }
-    @Bean
-    public Step step3(){
-        return stepBuilderFactory.get("hellowStep3")
                 .tasklet(((stepContribution, chunkContext) ->  {
                     return RepeatStatus.FINISHED;
                 }))

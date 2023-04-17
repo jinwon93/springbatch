@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
-public class ValidatorConfiguration {
+public class PreventRestartConfiguration {
 
 
     private final JobLauncherApplicationRunner jobLauncherApplicationRunner;
@@ -32,8 +32,7 @@ public class ValidatorConfiguration {
         return jobBuilderFactory.get("job")
                 .start(step1())
                 .next(step2())
-//                .validator(new CustomJobParametersValidator())
-                .validator(new DefaultJobParametersValidator(new String[] {"name" , "data"} , new String[]{"count"}))
+                .preventRestart()
                 .build();
     }
 

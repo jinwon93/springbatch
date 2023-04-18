@@ -6,8 +6,8 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.job.DefaultJobParametersValidator;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.boot.autoconfigure.batch.JobLauncherApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
-public class PreventRestartConfiguration {
+public class IncrememteConfiguration {
 
 
     private final JobLauncherApplicationRunner jobLauncherApplicationRunner;
@@ -26,17 +26,25 @@ public class PreventRestartConfiguration {
     private final StepBuilderFactory stepBuilderFactory;
     private final SimpleJobBuilder simpleJobBuilder;
 
+    //Custom
+//    @Bean
+//    public Job batchJob(){
+//        return jobBuilderFactory.get("job")
+//                .start(step1())
+//                .next(step2())
+//                .incrementer(new CustomJobParameterIncremente())
+//                .build();
+//    }
+
 
     @Bean
     public Job batchJob(){
         return jobBuilderFactory.get("job")
                 .start(step1())
                 .next(step2())
-                .preventRestart()
+                .incrementer(new RunIdIncrementer())
                 .build();
     }
-
-
 
 
     @Bean

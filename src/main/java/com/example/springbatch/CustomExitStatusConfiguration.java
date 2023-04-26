@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
-public class TransitionConfiguration {
+public class CustomExitStatusConfiguration {
 
 
     private final JobLauncherApplicationRunner jobLauncherApplicationRunner;
@@ -34,15 +34,8 @@ public class TransitionConfiguration {
                 .start(step1())
                     .on("FAILED")
                     .to(step2())
-                    .on("FAILED")
+                    .on("PASS")
                     .stop()
-                .from(step1())
-                    .on("*")
-                    .to(step3())
-                    .next(step4())
-                .from(step2())
-                    .on("*")
-                    .to(step5())
                     .end()
                 .build();
     }
@@ -70,31 +63,5 @@ public class TransitionConfiguration {
     }
 
 
-    @Bean
-    public Step step3(){
-        return stepBuilderFactory.get("hellowStep3")
-                .tasklet(((stepContribution, chunkContext) ->  {
-                    return RepeatStatus.FINISHED;
-                }))
-                .build();
-    }
 
-    @Bean
-    public Step step4(){
-        return stepBuilderFactory.get("hellowStep4")
-                .tasklet(((stepContribution, chunkContext) ->  {
-                    return RepeatStatus.FINISHED;
-                }))
-                .build();
-    }
-
-
-    @Bean
-    public Step step5(){
-        return stepBuilderFactory.get("hellowStep5")
-                .tasklet(((stepContribution, chunkContext) ->  {
-                    return RepeatStatus.FINISHED;
-                }))
-                .build();
-    }
 }

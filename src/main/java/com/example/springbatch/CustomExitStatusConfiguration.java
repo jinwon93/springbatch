@@ -2,9 +2,7 @@ package com.example.springbatch;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
@@ -59,6 +57,7 @@ public class CustomExitStatusConfiguration {
                 .tasklet(((stepContribution, chunkContext) ->  {
                     return RepeatStatus.FINISHED;
                 }))
+                .listener((ChunkListener) new PassCheckingListener())
                 .build();
     }
 

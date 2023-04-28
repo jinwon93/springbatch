@@ -6,6 +6,8 @@ import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.job.flow.JobExecutionDecider;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.boot.autoconfigure.batch.JobLauncherApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
-public class CustomExitStatusConfiguration {
+public class JobExecutionDeciderConfiguration {
 
 
     private final JobLauncherApplicationRunner jobLauncherApplicationRunner;
@@ -29,21 +31,26 @@ public class CustomExitStatusConfiguration {
     @Bean
     public Job batchJob(){
         return jobBuilderFactory.get("job")
-                .start(step1())
-                    .on("FAILED")
-                    .to(step2())
-                    .on("PASS")
-                    .stop()
-                    .end()
+                .incrementer(new RunIdIncrementer())
+                .start(step())
+                .next(decider())
+                .from(decider()).on("ODD").to(oddStep())
+                .from(decider()).on("EVEN").to(evenStep())
+                .end()
                 .build();
     }
 
 
     @Bean
-    public Step step1(){
-        return stepBuilderFactory.get("hellowStep1")
-                .tasklet(((stepContribution, chunkContext) ->  {
-                    stepContribution.setExitStatus(ExitStatus.FAILED);
+    public JobExecutionDecider decider() {
+        return new CustomeDecider();
+    }
+
+    @Bean
+    public Step step(){
+        return stepBuilderFactory.get("step")
+                .tasklet(((contribution, chunkContext) ->  {
+                    contribution.setExitStatus(ExitStatus.FAILED);
                     return RepeatStatus.FINISHED;
                 }))
                 .build();
@@ -52,15 +59,23 @@ public class CustomExitStatusConfiguration {
 
 
     @Bean
-    public Step step2(){
-        return stepBuilderFactory.get("hellowStep2")
+    public Step evenStep(){
+        return stepBuilderFactory.get("evenstep")
                 .tasklet(((stepContribution, chunkContext) ->  {
                     return RepeatStatus.FINISHED;
                 }))
-                .listener((ChunkListener) new PassCheckingListener())
+
                 .build();
     }
 
+    @Bean
+    public Step oddStep(){
+        return stepBuilderFactory.get("oddStep")
+                .tasklet(((stepContribution, chunkContext) ->  {
+                    return RepeatStatus.FINISHED;
+                }))
 
+                .build();
+    }
 
 }

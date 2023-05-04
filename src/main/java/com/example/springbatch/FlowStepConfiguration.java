@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
-public class SimpleFlowConfiguration {
+public class FlowStepConfiguration {
 
 
     private final JobLauncherApplicationRunner jobLauncherApplicationRunner;
@@ -33,17 +33,18 @@ public class SimpleFlowConfiguration {
     public Job batchJob(){
         return jobBuilderFactory.get("job")
                 .incrementer(new RunIdIncrementer())
-                .start(flow1())
-                    .on("COMPLETED")
-                    .to(flow2())
-                .from(flow1())
-                    .on("FAILED")
-                    .to(flow3())
-                .end()
+                .start(flowStep())
+                .next(step2())
                 .build();
     }
 
-    private Flow flow1() {
+    private Step flowStep() {
+        return  stepBuilderFactory.get("flowStep")
+                .flow(flow())
+                .build();
+    }
+
+    private Flow flow() {
         FlowBuilder<Flow> flowFlowBuilder = new FlowBuilder<>("flow");
 
         flowFlowBuilder.start(step1())
@@ -53,28 +54,7 @@ public class SimpleFlowConfiguration {
         return flowFlowBuilder.build();
     }
 
-    private Flow flow2() {
-        FlowBuilder<Flow> flowFlowBuilder = new FlowBuilder<>("flow");
 
-        flowFlowBuilder.start(flow3())
-                .next(step5())
-                .next(step6())
-                .end();
-
-        return flowFlowBuilder.build();
-    }
-
-
-    private Flow flow3() {
-        FlowBuilder<Flow> flowFlowBuilder = new FlowBuilder<>("flow");
-
-        flowFlowBuilder.start(step1())
-                .next(step3())
-                .next(step4())
-                .end();
-
-        return flowFlowBuilder.build();
-    }
 
     @Bean
     public Step step1(){
@@ -110,35 +90,6 @@ public class SimpleFlowConfiguration {
     }
 
 
-    @Bean
-    public Step step4(){
-        return stepBuilderFactory.get("eventstep")
-                .tasklet(((stepContribution, chunkContext) ->  {
-                    return RepeatStatus.FINISHED;
-                }))
-
-                .build();
-    }
-
-    @Bean
-    public Step step5(){
-        return stepBuilderFactory.get("eventstep")
-                .tasklet(((stepContribution, chunkContext) ->  {
-                    return RepeatStatus.FINISHED;
-                }))
-
-                .build();
-    }
-
-    @Bean
-    public Step step6(){
-        return stepBuilderFactory.get("eventstep")
-                .tasklet(((stepContribution, chunkContext) ->  {
-                    return RepeatStatus.FINISHED;
-                }))
-
-                .build();
-    }
 
 
 

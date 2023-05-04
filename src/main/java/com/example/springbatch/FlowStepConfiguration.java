@@ -8,7 +8,6 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.job.flow.JobExecutionDecider;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.boot.autoconfigure.batch.JobLauncherApplicationRunner;
@@ -20,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
-public class JobExecutionDeciderConfiguration {
+public class FlowStepConfiguration {
 
 
     private final JobLauncherApplicationRunner jobLauncherApplicationRunner;
@@ -34,9 +33,14 @@ public class JobExecutionDeciderConfiguration {
     public Job batchJob(){
         return jobBuilderFactory.get("job")
                 .incrementer(new RunIdIncrementer())
-                .start(flow())
-                .next(step3())
-                .end()
+                .start(flowStep())
+                .next(step2())
+                .build();
+    }
+
+    private Step flowStep() {
+        return  stepBuilderFactory.get("flowStep")
+                .flow(flow())
                 .build();
     }
 
@@ -49,6 +53,8 @@ public class JobExecutionDeciderConfiguration {
 
         return flowFlowBuilder.build();
     }
+
+
 
     @Bean
     public Step step1(){
@@ -64,7 +70,7 @@ public class JobExecutionDeciderConfiguration {
 
     @Bean
     public Step step2(){
-        return stepBuilderFactory.get("evenstep")
+        return stepBuilderFactory.get("eventstep")
                 .tasklet(((stepContribution, chunkContext) ->  {
                     return RepeatStatus.FINISHED;
                 }))
@@ -75,11 +81,16 @@ public class JobExecutionDeciderConfiguration {
 
     @Bean
     public Step step3(){
-        return stepBuilderFactory.get("evenstep")
+        return stepBuilderFactory.get("eventstep")
                 .tasklet(((stepContribution, chunkContext) ->  {
                     return RepeatStatus.FINISHED;
                 }))
 
                 .build();
     }
+
+
+
+
+
 }

@@ -9,7 +9,6 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +19,7 @@ import java.util.Arrays;
 @Configuration
 @RequiredArgsConstructor
 // ItmeReader ItemWriter ItemProcessor
-public class ItemReaderConfiguration {
+public class FlatFilesConfiguration {
 
 
     private final StepBuilderFactory stepBuilderFactory;
@@ -37,37 +36,25 @@ public class ItemReaderConfiguration {
     }
 
     @Bean
-
     public Step step1(){
         return stepBuilderFactory.get("step1")
                 .<Customer , Customer>chunk(5)
-                .reader(itemReader())
-                .processor(itemProcessor()
-                )
-                .writer(itemWriter()
+                .reader(null)
+
+                .writer(new ItemStreamWriter<Customer>() {
+                            @Override
+                            public void write(Chunk<? extends Customer> chunk) throws Exception {
+                                return;
+                            }
+                        }
                 )
                 .build();
     }
 
-    @Bean
-    public ItemWriter<? super Customer> itemWriter() {
-        return new CustomerItemWriter();
-    }
 
-    @Bean
-    public ItemReader<? extends Customer> itemReader() {
-
-        return  new CustomerItemReader(Arrays.asList(new Customer("user")));
-    }
-
-    @Bean
-    public CustomerItemProcessor itemProcessor() {
-         return new CustomerItemProcessor();
-    }
 
 
     @Bean
-
     public Step step2(){
         return stepBuilderFactory.get("step1")
                 .tasklet(((contribution, chunkContext) -> {

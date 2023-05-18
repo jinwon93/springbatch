@@ -9,9 +9,12 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 
 import java.util.Arrays;
 
@@ -39,7 +42,7 @@ public class FlatFilesConfiguration {
     public Step step1(){
         return stepBuilderFactory.get("step1")
                 .<Customer , Customer>chunk(5)
-                .reader(null)
+                .reader(itemReader())
 
                 .writer(new ItemStreamWriter<Customer>() {
                             @Override
@@ -51,7 +54,20 @@ public class FlatFilesConfiguration {
                 .build();
     }
 
+    public ItemReader itemReader(){
 
+        FlatFileItemReader<Customer> itemReader = new FlatFileItemReader<>();
+        itemReader.setResource(new ClassPathResource("/customer.csv"));
+
+        DefaultLineMapper<Customer> lineMapper = new DefaultLineMapper<>();
+        lineMapper.setLineTokenizer(new DelimitedLineTokenizer());
+        lineMapper.setFieldSetMapper(new CustomerFieldSetMapper());
+
+        itemReader.setLineMapper(lineMapper);
+        itemReader.setLinesToSkip(1);
+
+        return itemReader;
+    }
 
 
     @Bean

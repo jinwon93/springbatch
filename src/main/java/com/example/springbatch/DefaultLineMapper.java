@@ -13,7 +13,7 @@ public class DefaultLineMapper<T> implements LineMapper<T> {
 
     @Override
     public T mapLine(String line, int lineNumber) throws Exception {
-        return null;
+        return (T) fieldSetMapper.mapFieldSet(lineTokenizer.tokenize(line));
     }
 
     public  void  setLineTokenizer(LineTokenizer lineTokenizer) {

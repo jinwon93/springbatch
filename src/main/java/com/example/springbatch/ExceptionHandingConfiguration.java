@@ -6,7 +6,6 @@ import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
@@ -15,14 +14,13 @@ import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 
 
 @Configuration
 @RequiredArgsConstructor
 // ItmeReader ItemWriter ItemProcessor
-public class FlatFilesFixedLengthConfiguration {
+public class ExceptionHandingConfiguration {
 
 
     private final StepBuilderFactory stepBuilderFactory;
@@ -62,6 +60,7 @@ public class FlatFilesFixedLengthConfiguration {
                 .targetType(Customer.class)
                 .linesToSkip(1)
                 .fixedLength()
+                .strict(false)
                 .addColumns(new Range(1,5))
                 .addColumns(new Range(6 , 9))
                 .addColumns(new Range(10 , 11))

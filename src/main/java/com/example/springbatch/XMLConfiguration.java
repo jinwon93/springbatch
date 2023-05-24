@@ -6,21 +6,29 @@ import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.Chunk;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.transform.Range;
+import org.springframework.batch.item.xml.StaxEventItemReader;
+import org.springframework.batch.item.xml.builder.StaxEventItemReaderBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.oxm.Unmarshaller;
+import org.springframework.oxm.xstream.XStreamMarshaller;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Configuration
 @RequiredArgsConstructor
-// ItmeReader ItemWriter ItemProcessor
-public class ExceptionHandingConfiguration {
+public class XMLConfiguration {
 
 
     private final StepBuilderFactory stepBuilderFactory;
@@ -40,7 +48,7 @@ public class ExceptionHandingConfiguration {
     public Step step1(){
         return stepBuilderFactory.get("step1")
                 .<Customer , Customer>chunk(5)
-                .reader(itemReader())
+                .reader(customerItemReader())
 
                 .writer(new ItemStreamWriter<Customer>() {
                             @Override
@@ -52,22 +60,30 @@ public class ExceptionHandingConfiguration {
                 .build();
     }
 
-    public FlatFileItemReader itemReader(){
-        return new FlatFileItemReaderBuilder<Customer>()
-                .name("flatfile")
-                .resource(new FileSystemResource("C:\\Users\\USER\\Downloads\\spring-batch\\springbatch\\src\\main\\resources\\customer.csv"))
-                .fieldSetMapper(new BeanWrapperFieldSetMapper<>())
-                .targetType(Customer.class)
-                .linesToSkip(1)
-                .fixedLength()
-                .strict(false)
-                .addColumns(new Range(1,5))
-                .addColumns(new Range(6 , 9))
-                .addColumns(new Range(10 , 11))
-                .names("name" , "year" ,"age")
-                .build();
+    @Bean
+    public ItemReader<? extends Customer> customerItemReader() {
 
+        return new StaxEventItemReaderBuilder<Customer>()
+                .name("statXml")
+                .resource(new ClassPathResource("customer.xml"))
+                .addFragmentRootElements("customer")
+                .unmarshaller(itemUnmarshaller())
 
+    }
+
+    @Bean
+    public Unmarshaller itemUnmarshaller() {
+
+        Map<String , Class<?>> aliases = new HashMap<>();
+        aliases.put("customer" , Customer.class);
+        aliases.put("id" , Long.class);
+        aliases.put("name" , String.class);
+        aliases.put("age" , Integer.class);
+
+        XStreamMarshaller xStreamMarshaller = new XStreamMarshaller();
+
+        xStreamMarshaller.setAliases(aliases);
+        return xStreamMarshaller;
     }
 
 

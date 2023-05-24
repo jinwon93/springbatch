@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<customers>
+
+
+
+    <customer id ="1">
+        <id>1</id>
+        <name>1</name>
+        <age>1</age>
+    </customer>
+    <customer id ="2">
+        <id>2</id>
+        <name>2</name>
+        <age>2</age>
+    </customer>
+    <customer id ="3">
+        <id>3</id>
+        <name>3</name>
+        <age>3</age>
+    </customer>
+</customers>

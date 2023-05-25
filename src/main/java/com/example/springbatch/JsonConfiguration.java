@@ -8,17 +8,14 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamWriter;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.batch.item.file.transform.Range;
-import org.springframework.batch.item.xml.StaxEventItemReader;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.xml.builder.StaxEventItemReaderBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.oxm.Unmarshaller;
 import org.springframework.oxm.xstream.XStreamMarshaller;
 
@@ -28,7 +25,7 @@ import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
-public class XMLConfiguration {
+public class JsonConfiguration {
 
 
     private final StepBuilderFactory stepBuilderFactory;
@@ -49,41 +46,31 @@ public class XMLConfiguration {
         return stepBuilderFactory.get("step1")
                 .<Customer , Customer>chunk(5)
                 .reader(customerItemReader())
-
-                .writer(new ItemStreamWriter<Customer>() {
-                            @Override
-                            public void write(Chunk<? extends Customer> chunk) throws Exception {
-                                return;
-                            }
-                        }
-                )
+                .writer(customerItemWriter())
                 .build();
+    }
+
+    private ItemWriter<? super Customer> customerItemWriter() {
+
+        return  items -> {
+            for (Customer item : items) {
+                return;
+            }
+        };
     }
 
     @Bean
     public ItemReader<? extends Customer> customerItemReader() {
 
-        return new StaxEventItemReaderBuilder<Customer>()
-                .name("statXml")
-                .resource(new ClassPathResource("customer.xml"))
-                .addFragmentRootElements("customer")
-                .unmarshaller(itemUnmarshaller())
+        return new JsonItemReaderBuilder<Customer>()
+                .name("jsonReader")
+                .resource(new ClassPathResource("customer.json"))
+                .jsonObjectReader(new JacksonJsonObjectReader<>(Customer
+                        .class))
+                .build();
 
-    }
 
-    @Bean
-    public Unmarshaller itemUnmarshaller() {
 
-        Map<String , Class<?>> aliases = new HashMap<>();
-        aliases.put("customer" , Customer.class);
-        aliases.put("id" , Long.class);
-        aliases.put("name" , String.class);
-        aliases.put("age" , Integer.class);
-
-        XStreamMarshaller xStreamMarshaller = new XStreamMarshaller();
-
-        xStreamMarshaller.setAliases(aliases);
-        return xStreamMarshaller;
     }
 
 

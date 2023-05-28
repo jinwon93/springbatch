@@ -10,21 +10,24 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.database.JdbcCursorItemReader;
-import org.springframework.batch.item.database.JpaCursorItemReader;
-import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
+import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
+import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-public class JpaCusorConfiguration {
+public class FlatFilesDelimitedConfiguration {
 
 
 
@@ -52,25 +55,25 @@ public class JpaCusorConfiguration {
 
     private ItemReader<?  extends  Customer> customerItemReader() {
 
-        Map<String , Object>  parameters = new HashMap<>();
-        parameters.put("firstname" , "A%");
+        List<Customer> customers = Arrays.asList(new Customer(1L,  "hong gil dong" , 21)),
+                new Customer(2L,  "hong gil dong" , 21  ),
+                new Customer(3 ,  "hong gil dong" , 22  );
 
-        return new JpaCursorItemReaderBuilder<Customer>()
-                .name("jpaCursorItemReader")
-                .entityManagerFactory(em)
-                .queryString("select c from Cusotmer c where firstname like :firstname")
-                .parameterValues(parameters)
-                .build();
+        ListItemReader<Customer> reader = new ListItemReader<>(customers);
+
+        return  reader;
 
     }
 
     public ItemWriter<? super Object> customerItemWriter() {
 
-        return  items -> {
-            for (Object item : items) {
-                log.info((String) item);
-            }
-        };
+        return  new FlatFileItemWriterBuilder<>()
+                .name("flatFileWriter")
+                .resource(new FileSystemResource("C:\\Users\\USER\\Downloads\\spring-batch\\springbatch\\src\\main\\resources"))
+                .delimited()
+                .delimiter("|")
+                .names( new String[]{"id", "name" ,"age"})
+                .build();
     }
 
 }

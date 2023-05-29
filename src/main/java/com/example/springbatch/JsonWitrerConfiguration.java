@@ -8,26 +8,27 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
+import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
+import org.springframework.batch.item.json.builder.JsonFileItemWriterBuilder;
+import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.batch.item.support.ListItemReader;
+import org.springframework.batch.item.support.builder.CompositeItemProcessorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-public class FlatFilesDelimitedConfiguration {
+public class JsonWitrerConfiguration {
 
 
 
@@ -49,15 +50,29 @@ public class FlatFilesDelimitedConfiguration {
         return stepBuilderFactory.get("step1")
                 .chunk(chunkSize)
                 .reader(customerItemReader())
-                .writer(customerItemWriter())
+                .writer((ItemWriter<? super Object>) customerItemWriter())
+                .processor((ItemProcessor<? super Object, ?>) customerItemProcessor())
+                .build();
+    }
+
+
+    @Bean
+    public ItemProcessor<? super String,String> customerItemProcessor() {
+
+        List itemProcessor = new ArrayList();
+        itemProcessor.add(new CustomItemProcessor());
+
+
+        return  new CompositeItemProcessorBuilder<>()
+                .delegates(itemProcessor)
                 .build();
     }
 
     private ItemReader<?  extends  Customer> customerItemReader() {
 
-        List<Customer> customers = Arrays.asList(new Customer(1L,  "hong gil dong" , 21)),
-                new Customer(2L,  "hong gil dong" , 21  ),
-                new Customer(3 ,  "hong gil dong" , 22  );
+        List<Customer> customers = Arrays.asList(new Customer(1L,  "hong gil dong" , 21),
+                new Customer(2L,  "hong gil dong" , 22  ),
+                new Customer(3L,  "hong gil dong" , 23  ));
 
         ListItemReader<Customer> reader = new ListItemReader<>(customers);
 
@@ -65,14 +80,13 @@ public class FlatFilesDelimitedConfiguration {
 
     }
 
-    public ItemWriter<? super Object> customerItemWriter() {
+    public ItemWriter<? super Customer> customerItemWriter() {
 
-        return  new FlatFileItemWriterBuilder<>()
-                .name("flatFileWriter")
-                .resource(new FileSystemResource("C:\\Users\\USER\\Downloads\\spring-batch\\springbatch\\src\\main\\resources"))
-                .delimited()
-                .delimiter("|")
-                .names( new String[]{"id", "name" ,"age"})
+        return  new JsonFileItemWriterBuilder<Customer>()
+
+                .name("jsonFileWriter")
+                .jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>())
+                .resource(new FileSystemResource("C:\\Users\\USER\\Downloads\\spring-batch\\springbatch\\src\\main\\resources\\customer.json"))
                 .build();
     }
 

@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 
+import java.util.Date;
+
 @Data
 @AllArgsConstructor
 public class Customer {
@@ -14,8 +16,10 @@ public class Customer {
 
     @Id
     private Long id;
-    private String name;
-    private int age;
+    private String firstName;
+    private String lastName;
+    private  Date birthdate;
+
 
 
 

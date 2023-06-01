@@ -17,6 +17,7 @@ import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.support.MySqlPagingQueryProvider;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -39,28 +40,36 @@ public class AsyncConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
+    private final CustomStepExecutionListener customStepExecutionListener;
 
 
     @Bean
     public Job job() throws Exception {
         return jobBuilderFactory.get("batchJob")
                 .incrementer(new RunIdIncrementer())
-//                .start(step1())
-                .start(asyncStep1())
-                .listener(new StopWatch())
+                .start(step1())
+//                .start(asyncStep1())
+                .listener(new CustomJobExecutionListener())
+                .listener(new CustomAnotationJobExecutionListener())
                 .build();
     }
 
     @Bean
     public Step step1() throws Exception {
         return stepBuilderFactory.get("step1")
-                .chunk(100)
-                .reader(pagingItemReader())
-                .processor(customItemProcessor())
-                .writer(customItemWriter())
+                .tasklet(((contribution, chunkContext) -> RepeatStatus.FINISHED))
+                .listener(customStepExecutionListener)
                 .build();
     }
 
+
+    @Bean
+    public Step step2() throws Exception {
+        return stepBuilderFactory.get("step2")
+                .tasklet(((contribution, chunkContext) -> RepeatStatus.FINISHED))
+                .listener(customStepExecutionListener)
+                .build();
+    }
     @Bean
     public Step asyncStep1() throws Exception {
         return stepBuilderFactory.get("asyncStep1")

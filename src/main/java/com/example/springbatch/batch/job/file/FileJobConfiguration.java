@@ -1,6 +1,7 @@
 package com.example.springbatch.batch.job.file;
 
 
+import com.example.springbatch.batch.chunk.processor.FileItemProcessor;
 import com.example.springbatch.batch.domain.Product;
 import com.example.springbatch.batch.domain.ProductVO;
 import jakarta.persistence.EntityManagerFactory;
@@ -12,6 +13,7 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
@@ -42,7 +44,7 @@ public class FileJobConfiguration {
 
         return stepBuilderFactory.get("fileStep")
         .<ProductVO, Product>chunk(10)
-                .reader(fileItemReader())
+                .reader(fileItemReader(null))
                 .processor(fileItemProcessor())
                 .writer(fileItemWriter())
                 .build();
@@ -67,12 +69,15 @@ public class FileJobConfiguration {
     @Bean
     public ItemWriter<? super Product> fileItemWriter() {
 
-        return null;
+        return  new JpaItemWriterBuilder<Product>()
+                .entityManagerFactory(entityManagerFactory)
+                .usePersist(true)
+                .build();
     }
 
     @Bean
-    public ItemProcessor<? super ProductVO,? extends Product> fileItemProcessor() {
-        return null;
+    public ItemProcessor<ProductVO , Product > fileItemProcessor() {
+        return  new FileItemProcessor();
     }
 
 

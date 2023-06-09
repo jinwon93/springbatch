@@ -1,11 +1,14 @@
 package com.example.springbatch.batch.rowmapper;
 
 import com.example.springbatch.batch.domain.ProductVO;
+import org.springframework.jdbc.core.RowMapper;
+
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ProductRowMapper {
+public class ProductRowMapper implements RowMapper<ProductVO> {
+
 
 
     @Override

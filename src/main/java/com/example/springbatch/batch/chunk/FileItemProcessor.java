@@ -1,4 +1,4 @@
-package com.example.springbatch.batch.chunk.processor;
+package com.example.springbatch.batch.chunk;
 
 import com.example.springbatch.batch.domain.Product;
 import com.example.springbatch.batch.domain.ProductVO;

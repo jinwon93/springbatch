@@ -5,6 +5,7 @@ package com.example.springbatch.batch.job.api;
 import com.example.springbatch.batch.domain.ApiRequestVo;
 import com.example.springbatch.batch.domain.ProductVO;
 import com.example.springbatch.batch.partition.ProductPartitioner;
+import com.example.springbatch.service.ApiService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.batch.core.Step;
@@ -44,12 +45,13 @@ public class ApiStepConfiguration {
     private final StepBuilderFactory stepBuilderFactory;
 
     private final DataSource dataSource;
+    private final ApiService apiService;
 
     private int chunkSize = 10;
 
 
     @Bean
-    public Step apiMasterStep(){
+    public Step apiMasterStep() throws Exception {
         return stepBuilderFactory.get("apiMasterStep")
                 .partitioner(apiSlaveStep().getName() , partitioner())
                 .step(apiSlaveStep())
@@ -85,21 +87,13 @@ public class ApiStepConfiguration {
         ClassifierCompositeItemWriter<ApiRequestVo> writer
                 = new ClassifierCompositeItemWriter<>();
 
-        Classifier<ApiRequestVo , ItemWriter<? super   ApiRequestVo>> classifier = new Classifier<ApiRequestVo, ItemWriter<? super ApiRequestVo>>() {
-            @Override
-            public ItemWriter<? super ApiRequestVo> classify(ApiRequestVo apiRequestVo) {
-                return null;
-            }
-        };
+        Classifier<ApiRequestVo , ItemWriter<? super   ApiRequestVo>> classifier = apiRequestVo -> null;
 
         Map<String , ItemWriter<ApiRequestVo>> writerMap = new HashMap<>();
 
         for (int i = 1; i <= 3; i++) {
-            writerMap.put(String.valueOf(i), new ItemWriter<ApiRequestVo>() {
-                @Override
-                public void write(Chunk<? extends ApiRequestVo> chunk) throws Exception {
-                    return;
-                }
+            writerMap.put(String.valueOf(i), chunk -> {
+                return;
             });
         }
 
@@ -113,12 +107,7 @@ public class ApiStepConfiguration {
         ClassifierCompositeItemProcessor<ProductVO , ApiRequestVo> processor
                 = new ClassifierCompositeItemProcessor<ProductVO, ApiRequestVo>();
 
-        Classifier<ProductVO , ItemProcessor<? , ? extends  ApiRequestVo>> classifier = new Classifier<ProductVO, ItemProcessor<?, ? extends ApiRequestVo>>() {
-            @Override
-            public ItemProcessor<?, ? extends ApiRequestVo> classify(ProductVO productVO) {
-                return null;
-            }
-        };
+        Classifier<ProductVO , ItemProcessor<? , ? extends  ApiRequestVo>> classifier = productVO -> null;
 
         Map<String , ItemProcessor<ProductVO , ApiRequestVo>> processorMap = new HashMap<>();
 
@@ -126,15 +115,10 @@ public class ApiStepConfiguration {
 
         for (int i= 1; i <=3; i++) {
 
-            processorMap.put(String.valueOf(i), new ItemProcessor<ProductVO, ApiRequestVo>() {
-                @Override
-                public ApiRequestVo process(ProductVO item) throws Exception {
-                    return ApiRequestVo.builder()
-                            .id(item.getId())
-                            .productVO(item)
-                            .build();
-                }
-            });
+            processorMap.put(String.valueOf(i), item -> ApiRequestVo.builder()
+                    .id(item.getId())
+                    .productVO(item)
+                    .build());
         }
 
         processor.setClassifier(classifier);

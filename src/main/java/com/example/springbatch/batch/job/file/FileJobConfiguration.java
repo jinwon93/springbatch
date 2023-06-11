@@ -1,7 +1,7 @@
 package com.example.springbatch.batch.job.file;
 
 
-import com.example.springbatch.batch.chunk.processor.FileItemProcessor;
+import com.example.springbatch.batch.chunk.FileItemProcessor;
 import com.example.springbatch.batch.domain.Product;
 import com.example.springbatch.batch.domain.ProductVO;
 import jakarta.persistence.EntityManagerFactory;
@@ -11,7 +11,6 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;

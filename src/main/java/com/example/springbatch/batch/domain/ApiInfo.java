@@ -11,5 +11,5 @@ import java.util.List;
 public class ApiInfo {
 
     private String url;
-    private List<? extends  ApiResponseVo> apiResponseVos;
+    private List<? extends  ApiRequestVo> apiRequestVos;
 }

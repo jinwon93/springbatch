@@ -3,6 +3,7 @@ package com.example.springbatch.batch.job.api;
 
 
 import com.example.springbatch.batch.domain.ApiRequestVo;
+import com.example.springbatch.batch.domain.ApiResponseVo;
 import com.example.springbatch.batch.domain.ProductVO;
 import com.example.springbatch.batch.partition.ProductPartitioner;
 import com.example.springbatch.service.ApiService;
@@ -13,19 +14,19 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.*;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.support.MySqlPagingQueryProvider;
+import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
 import org.springframework.batch.item.support.ClassifierCompositeItemProcessor;
 import org.springframework.batch.item.support.ClassifierCompositeItemWriter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.classify.Classifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.messaging.support.IdTimestampMessageHeaderInitializer;
@@ -38,7 +39,7 @@ import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
-public class ApiStepConfiguration {
+public class ApiStepConfiguration extends FlatFileItemWriter<ApiResponseVo> {
 
 
 
@@ -80,6 +81,7 @@ public class ApiStepConfiguration {
                 .writer(itemWriter())
                 .build();
     }
+
 
     @Bean
     public ItemWriter itemWriter() {

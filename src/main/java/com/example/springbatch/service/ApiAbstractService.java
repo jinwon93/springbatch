@@ -19,7 +19,7 @@ import java.util.List;
 public abstract class   ApiAbstractService {
 
 
-    public ApiResponseVo apiResponseVo(List<? extends ApiResponseVo> apiRequestVo){
+    public ApiResponseVo apiResponseVo(List<? extends ApiRequestVo> apiRequestVo){
 
         RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
         RestTemplate restTemplate = restTemplateBuilder.errorHandler(new ResponseErrorHandler() {
@@ -39,7 +39,7 @@ public abstract class   ApiAbstractService {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-        ApiInfo apiInfo =  ApiInfo.builder().apiResponseVos(apiRequestVo).build();
+        ApiInfo apiInfo =  ApiInfo.builder().apiRequestVos(apiRequestVo).build();
 
         return doApiService(restTemplate , apiInfo);
     }

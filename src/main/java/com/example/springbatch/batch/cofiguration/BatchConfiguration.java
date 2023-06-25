@@ -4,9 +4,13 @@ package com.example.springbatch.batch.cofiguration;
 import com.example.springbatch.batch.domain.Order;
 import org.aspectj.weaver.ast.Or;
 import org.hibernate.sql.results.graph.DatabaseSnapshotContributor;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.annotation.BeforeRead;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -63,4 +67,24 @@ class BatchConfiguration {
     }
 
 
+    @Bean
+    public Step orderProcessingStep(ItemReader<Order> reader , ItemProcessor<Order, Order> processor, ItemWriter<Order> writer) {
+
+        return stepBuilderFactory.get("orderProcessingStep")
+                .<Order , Order>chunk(10)
+                .reader(reader)
+                .processor(processor)
+                .writer(writer)
+                .build();
+    }
+
+
+    @Bean
+    public Job  orderProcessingJob(Step orderProcessingStep)  {
+        return  jobBuilderFactory.get("orderProcessingStep")
+                .incrementer(new RunIdIncrementer())
+                .flow(orderProcessingStep)
+                .end()
+                .build();
+    }
 }
